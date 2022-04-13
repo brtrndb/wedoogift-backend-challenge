@@ -1,0 +1,91 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
+plugins {
+    id 'idea'
+    id 'base'
+    id 'java'
+    id 'java-test-fixtures'
+    id 'application'
+    id 'io.freefair.lombok' version "${plugin_lombok_version}"
+    id 'com.github.ManifestClasspath' version "${plugin_manifest_classpath_version}"
+    id 'org.springframework.boot' version "${plugin_spring_boot_version}"
+    id 'io.spring.dependency-management' version "${plugin_spring_dependency_management_version}"
+    id 'org.flywaydb.flyway' version "${plugin_flyway_version}"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    gradlePluginPortal()
+}
+
+group "${project_group}"
+version "${project_version}"
+
+compileJava {
+    sourceCompatibility "${jdk_version_source}"
+    targetCompatibility "${jdk_version_target}"
+}
+
+dependencies {
+    // Main dependencies.
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+    implementation('org.springframework.boot:spring-boot-starter-logging')
+    implementation('org.springframework.boot:spring-boot-starter-validation')
+    implementation("org.flywaydb:flyway-core:${plugin_flyway_version}")
+
+    // Compile dependencies.
+    compileOnly("org.jetbrains:annotations:${jetbrains_annotations_version}")
+
+    // Runtime dependencies.
+    runtimeOnly("org.postgresql:postgresql:${postgresql_version}")
+
+    // Annotation Processor dependencies.
+    annotationProcessor("org.jetbrains:annotations:${jetbrains_annotations_version}")
+    annotationProcessor('org.springframework.boot:spring-boot-configuration-processor')
+
+    // Dev dependencies.
+    developmentOnly('org.springframework.boot:spring-boot-devtools')
+
+    // Tests dependencies.
+    testImplementation('org.springframework.boot:spring-boot-starter-test') { exclude group: 'org.junit.vintage', module: 'junit-vintage-engine' }
+    testCompileOnly("org.jetbrains:annotations:${jetbrains_annotations_version}")
+
+    // Test fixtures dependencies.
+    testFixturesImplementation(platform("org.testcontainers:testcontainers-bom:${testcontainers_version}"))
+    testFixturesImplementation('org.springframework.boot:spring-boot-starter-data-jpa')
+    testFixturesImplementation('org.springframework.boot:spring-boot-starter-test') { exclude group: 'org.junit.vintage', module: 'junit-vintage-engine' }
+    testFixturesImplementation("org.flywaydb:flyway-core:${plugin_flyway_version}")
+    testFixturesImplementation('org.testcontainers:testcontainers')
+    testFixturesImplementation('org.testcontainers:junit-jupiter')
+    testFixturesImplementation('org.testcontainers:postgresql')
+    testFixturesAnnotationProcessor("org.jetbrains:annotations:${jetbrains_annotations_version}")
+}
+
+test {
+    useJUnitPlatform()
+
+    doFirst {
+        systemProperty 'spring.profiles.active', 'test'
+    }
+
+    testLogging {
+        events = [/*TestLogEvent.STARTED,*/ TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED]
+        exceptionFormat = TestExceptionFormat.FULL
+        showStandardStreams = true
+    }
+
+    ignoreFailures true
+}
+
+springBoot {
+    buildInfo()
+}
+
+flyway {
+    url = "${flyway_db_url}"
+    user = "${flyway_db_user}"
+    password = "${flyway_db_password}"
+    schemas = ["${flyway_db_schema}"]
+}
