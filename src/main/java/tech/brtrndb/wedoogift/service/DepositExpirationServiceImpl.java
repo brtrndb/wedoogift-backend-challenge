@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DepositExpirationServiceImpl implements DepositExpirationService {
 
-    private static final int GIFT_DEPOSIT_EXPIRATION_DELAY = 365;
+    private static final int GIFT_DEPOSIT_EXPIRATION_DELAY = 364;
 
     //
 

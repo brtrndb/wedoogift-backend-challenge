@@ -22,10 +22,11 @@ public class DepositExpirationServiceTest extends BaseTest {
 
     @ParameterizedTest
     @CsvSource({
-            "2020-01-01 , 2020-12-31",
-            "2020-02-29 , 2021-02-28",
-            "2021-02-28 , 2022-02-28",
-            "2022-01-01 , 2023-01-01",
+            "2021-06-15 , 2022-06-14",
+            "2020-01-01 , 2020-12-30",
+            "2020-02-29 , 2021-02-27",
+            "2021-02-28 , 2022-02-27",
+            "2022-01-01 , 2022-12-31",
     })
     public void should_get_gift_expiration_date(String dateStr, String expectedExpirationStr) {
         // Given:
